@@ -9,7 +9,7 @@
     <meta name="description" content="Silent SOS Calculator - Emergency alert system disguised as calculator">
     <title>Calculator Pro</title>
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABhUlEQVR4Ae3VA5AjQRTH8V1j27Zt27Zt27Zt27Zt27Zt27b9Xm7V7O1mdl7VK6L6Vb5/8qVOJwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPh6VZKLkhyUZIUkCyQZm3+ZKsk8SebmX6ZI0vO3+7dLMkqSXqlXjZZklyTj/ifIYkl6v05wT5KZf6En5Z43lTclGf1Hw9+UZPYfC79Xktl/LHy/JHP+UPhBScb/ofC5ksz9Q+G7JZkf/rWkvgqfK8m8P9TjvZLMC/9aUleFj5WkJ3yXJPP/UHh5Sfof/jnFwudJsuAPFb5Dknl/rMf7JFkQ/rWk1gofJ0lP+LWSLAz/WlJThY+VpCd8iySLw7+WVE3h4yXpCd8qyZLwryVVUfh4SXrCN0uyNPxrSZUU3hO+RZJl4V9LKqrwCZL0hG+UZHn415IKKXyCJD3hGyRZEf61pJwKnyhJT/g6SVaGfy0ph8InSdITvkaSVeFfS8qo8EmS9ISvkWR1+NeShi18siQ94askWRP+taQhCp8iSU/4SknWhn8taZDCp0rSE75CknXhX0tKFC4dAAAAAElFTkSuQmCC">
+    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABhUlEQVR4Ae3VA5AjQRTH8V1j27Zt27Zt27Zt27Zt27Zt27b9Xm7V7O1mdl7VK6L6Vb5/8qVOJwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPh6VZKLkhyUZIUkCyQZm3+ZKsk8SebmX6ZI0vO3+7dLMkqSXqlXjZZklyTj/ifIYkl6v05wT5KZf6En5Z43lTclGf1Hw9+UZPYfC79Xktl/LHy/JHP+UPhBScb/ofC5ksz9Q+G7JZkf/rWkvgqfK8m8P9TjvZLMC/9aUleFj5WkJ3yXJPP/UHh5Sfof/jnFwudJsuAPFb5Dknl/rMf7JFkQ/rWk1gofJ0lP+LWSLAz/WlJThY+TpCd8iySLw7+WVE3h4yXpCd8qyZLwryVVUfh4SXrCd8qyZLwryVVUfh4SXrCN0uyNPxrSZUU3hO+RZJl4V9LKqrwCZL0hG+UZHn415IKKXyCJD3hGyRZEf61pJwKnyhJT/g6SVaGfy0ph8InSdITvkaSVeFfS8qo8EmS9ISvkWR1+NeShi18siQ94askWRP+taQhCp8iSU/4SknWhn8taZDCp0rSE75CknXhX0tKFC4dAAAAAElFTkSuQmCC">
     <style>
         * {
             margin: 0;
@@ -797,16 +797,17 @@
 
         /* Trigger Guide */
         .trigger-guide {
-            position: fixed;
-            top: 80px;
-            right: 20px;
             background: rgba(0, 0, 0, 0.8);
             border-radius: 12px;
             padding: 16px;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            max-width: 300px;
-            z-index: 90;
+            margin-top: 20px;
+            display: none;
             backdrop-filter: blur(10px);
+        }
+
+        .trigger-guide.active {
+            display: block;
         }
 
         .trigger-title {
@@ -828,27 +829,46 @@
             font-size: 18px;
         }
 
-        /* Volume Trigger Indicator */
-        .volume-trigger-indicator {
+        /* About Panel */
+        .about-panel {
             position: fixed;
-            top: 20px;
-            left: 20px;
-            background: rgba(255, 59, 48, 0.2);
-            border: 2px solid var(--sos-accent);
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            z-index: 90;
-            animation: volumePulse 2s infinite;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            max-width: 400px;
+            height: 100%;
+            background: var(--calculator-bg);
+            z-index: 2000;
+            transition: right 0.3s ease;
+            overflow-y: auto;
+            padding: 20px;
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        @keyframes volumePulse {
-            0%, 100% { transform: scale(1); opacity: 0.7; }
-            50% { transform: scale(1.1); opacity: 1; }
+        .about-panel.active {
+            right: 0;
+        }
+
+        .about-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .about-title {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .about-content {
+            padding: 20px 0;
+        }
+
+        .about-section {
+            margin-bottom: 32px;
         }
 
         /* Responsive Adjustments */
@@ -885,17 +905,7 @@
             }
             
             .trigger-guide {
-                top: 70px;
-                right: 10px;
-                max-width: 250px;
-            }
-            
-            .volume-trigger-indicator {
-                top: 15px;
-                left: 15px;
-                width: 40px;
-                height: 40px;
-                font-size: 16px;
+                margin: 16px;
             }
         }
 
@@ -926,6 +936,10 @@
             
             .login-title {
                 font-size: 24px;
+            }
+
+            .about-section {
+                margin-bottom: 24px;
             }
         }
 
@@ -989,6 +1003,10 @@
             }
             
             .settings-panel {
+                background: var(--calculator-bg);
+            }
+
+            .about-panel {
                 background: var(--calculator-bg);
             }
             
@@ -1074,36 +1092,6 @@
             <div class="login-footer">
                 Your data is stored locally and never shared
             </div>
-        </div>
-    </div>
-
-    <!-- Volume Trigger Indicator -->
-    <div class="volume-trigger-indicator" id="volumeIndicator" title="Volume Button SOS Trigger">
-        🔊
-    </div>
-
-    <!-- Trigger Guide -->
-    <div class="trigger-guide">
-        <div class="trigger-title">📢 Emergency Triggers:</div>
-        <div class="trigger-item">
-            <span class="trigger-icon">🧮</span>
-            <span>Type "100=" on calculator</span>
-        </div>
-        <div class="trigger-item">
-            <span class="trigger-icon">🔴</span>
-            <span>Click SOS button</span>
-        </div>
-        <div class="trigger-item">
-            <span class="trigger-icon">👆👆👆</span>
-            <span>Triple tap screen</span>
-        </div>
-        <div class="trigger-item">
-            <span class="trigger-icon">📱</span>
-            <span>Press volume button 3x</span>
-        </div>
-        <div class="trigger-item">
-            <span class="trigger-icon">📳</span>
-            <span>Shake phone vigorously</span>
         </div>
     </div>
 
@@ -1329,6 +1317,91 @@
         </div>
     </div>
 
+    <!-- About Panel -->
+    <div class="about-panel" id="aboutPanel">
+        <div class="about-header">
+            <h2 class="about-title">About Silent SOS</h2>
+            <button class="close-button" id="closeAboutBtn">×</button>
+        </div>
+        
+        <div class="about-content">
+            <div class="about-section">
+                <h3 class="section-title">📱 How It Works</h3>
+                <p style="margin-bottom: 12px; line-height: 1.6; font-size: 14px;">
+                    Silent SOS is an emergency alert system disguised as a calculator app. 
+                    In dangerous situations, you can discreetly trigger an emergency alert 
+                    that sends your location and medical information to pre-configured contacts.
+                </p>
+            </div>
+            
+            <div class="about-section">
+                <h3 class="section-title">🚨 Emergency Triggers</h3>
+                <div class="trigger-guide active">
+                    <div class="trigger-title">📢 How to activate emergency:</div>
+                    <div class="trigger-item">
+                        <span class="trigger-icon">🧮</span>
+                        <span>Type "100=" on calculator</span>
+                    </div>
+                    <div class="trigger-item">
+                        <span class="trigger-icon">🔴</span>
+                        <span>Click SOS button</span>
+                    </div>
+                    <div class="trigger-item">
+                        <span class="trigger-icon">👆👆👆</span>
+                        <span>Triple tap screen</span>
+                    </div>
+                    <div class="trigger-item">
+                        <span class="trigger-icon">📱</span>
+                        <span>Press volume button 3x</span>
+                    </div>
+                    <div class="trigger-item">
+                        <span class="trigger-icon">📳</span>
+                        <span>Shake phone vigorously</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="about-section">
+                <h3 class="section-title">🔒 Privacy & Security</h3>
+                <ul style="padding-left: 20px; margin-bottom: 12px; font-size: 14px; line-height: 1.6;">
+                    <li style="margin-bottom: 8px;">All data is stored locally on your device</li>
+                    <li style="margin-bottom: 8px;">No data is shared without your explicit trigger</li>
+                    <li style="margin-bottom: 8px;">Location is only sent during emergencies</li>
+                    <li style="margin-bottom: 8px;">Medical info is encrypted in transmission</li>
+                </ul>
+            </div>
+            
+            <div class="about-section">
+                <h3 class="section-title">⚙️ System Requirements</h3>
+                <ul style="padding-left: 20px; margin-bottom: 12px; font-size: 14px; line-height: 1.6;">
+                    <li style="margin-bottom: 8px;">Modern web browser with geolocation support</li>
+                    <li style="margin-bottom: 8px;">Internet connection for alerts</li>
+                    <li style="margin-bottom: 8px;">Location services enabled</li>
+                    <li style="margin-bottom: 8px;">Modern smartphone (iOS 12+ / Android 8+)</li>
+                </ul>
+            </div>
+            
+            <div class="about-section">
+                <h3 class="section-title">📞 Emergency Services</h3>
+                <ul style="padding-left: 20px; margin-bottom: 12px; font-size: 14px; line-height: 1.6;">
+                    <li style="margin-bottom: 8px;">🚓 Police: 100</li>
+                    <li style="margin-bottom: 8px;">🚑 Ambulance: 102</li>
+                    <li style="margin-bottom: 8px;">👩‍⚖️ Women Helpline: 1091</li>
+                    <li style="margin-bottom: 8px;">🚒 Fire: 101</li>
+                </ul>
+            </div>
+            
+            <div class="about-section">
+                <h3 class="section-title">ℹ️ Version Info</h3>
+                <p style="margin-bottom: 12px; font-size: 14px;">
+                    Silent SOS System v4.0<br>
+                    Last updated: February 2024<br>
+                    Developer: Kanishka
+                </p>
+            </div>
+        </div>
+    </div>
+
     <!-- Emergency Button -->
     <button class="emergency-button" id="emergencyButton" title="Emergency SOS">
         SOS
@@ -1365,6 +1438,7 @@
                 this.previousInput = '';
                 this.operation = null;
                 this.waitingForNewInput = false;
+                this.shouldResetScreen = false;
                 
                 this.emergencyMode = false;
                 this.countdown = 5;
@@ -1385,10 +1459,11 @@
                 // Contacts
                 this.smsContacts = [];
                 
-                // Volume button tracking
+                // Volume button tracking - REMOVED VISUAL BUTTON
                 this.volumePressCount = 0;
                 this.lastVolumePress = 0;
                 this.volumePressTimeout = null;
+                this.isListeningVolume = false;
                 
                 // Telegram config (pre-configured)
                 this.TELEGRAM_BOT_TOKEN = '8226399006:AAGCjQO1bKymWjcbC5VYr9WcNVP27h5itRE';
@@ -1489,47 +1564,89 @@
                 this.updateSystemStatus();
             }
             
-            // Volume Button Detection
+            // REAL PHONE VOLUME BUTTON DETECTION
             setupVolumeButtonDetection() {
-                let volumeUpPressed = false;
-                let volumeDownPressed = false;
+                // This works on Android Chrome and some iOS browsers
+                // Note: Volume button detection has limitations on web
                 
-                // Listen for keydown events
+                // Method 1: Using keydown events (works on Android with fullscreen)
                 document.addEventListener('keydown', (e) => {
-                    if (e.code === 'VolumeUp' || e.code === 'ArrowUp') {
-                        volumeUpPressed = true;
-                        this.handleVolumePress();
-                    } else if (e.code === 'VolumeDown' || e.code === 'ArrowDown') {
-                        volumeDownPressed = true;
-                        this.handleVolumePress();
+                    const volumeEnabled = document.getElementById('enableVolume')?.checked;
+                    
+                    if (!volumeEnabled || this.emergencyMode) return;
+                    
+                    // Check for volume keys
+                    if (e.code === 'VolumeUp' || e.code === 'VolumeDown' || 
+                        e.key === 'VolumeUp' || e.key === 'VolumeDown') {
+                        e.preventDefault(); // Prevent default volume behavior
+                        this.handleRealVolumePress();
                     }
                 });
                 
-                // Listen for keyup events
-                document.addEventListener('keyup', (e) => {
-                    if (e.code === 'VolumeUp' || e.code === 'ArrowUp') {
-                        volumeUpPressed = false;
-                    } else if (e.code === 'VolumeDown' || e.code === 'ArrowDown') {
-                        volumeDownPressed = false;
-                    }
-                });
-                
-                // Also simulate with buttons for desktop testing
-                const volumeIndicator = document.getElementById('volumeIndicator');
-                if (volumeIndicator) {
-                    volumeIndicator.addEventListener('click', () => {
-                        this.handleVolumePress();
+                // Method 2: Using media session API (experimental)
+                if ('mediaSession' in navigator) {
+                    navigator.mediaSession.setActionHandler('increasevolume', () => {
+                        this.handleRealVolumePress();
                     });
+                    
+                    navigator.mediaSession.setActionHandler('decreasevolume', () => {
+                        this.handleRealVolumePress();
+                    });
+                }
+                
+                // Method 3: Using window focus/blur to detect volume changes
+                // This is a workaround for iOS limitations
+                let lastVolumeCheck = Date.now();
+                
+                // Create a hidden video element for volume detection
+                this.setupVolumeDetectionWorkaround();
+            }
+            
+            setupVolumeDetectionWorkaround() {
+                // This is a workaround for devices that block direct volume button access
+                // Create a hidden video element that can capture media keys
+                try {
+                    const video = document.createElement('video');
+                    video.style.display = 'none';
+                    video.style.position = 'absolute';
+                    video.style.opacity = '0';
+                    video.style.pointerEvents = 'none';
+                    video.style.width = '1px';
+                    video.style.height = '1px';
+                    video.muted = true;
+                    video.volume = 0;
+                    
+                    // Add a silent audio source
+                    video.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==';
+                    
+                    // Set loop and autoplay
+                    video.loop = true;
+                    video.playsInline = true;
+                    
+                    document.body.appendChild(video);
+                    
+                    // Try to play to capture media keys
+                    video.play().then(() => {
+                        console.log('Video playing for volume detection');
+                    }).catch(e => {
+                        console.log('Video play failed:', e);
+                    });
+                    
+                    // Store reference
+                    this.volumeDetectionVideo = video;
+                } catch (e) {
+                    console.log('Volume detection workaround failed:', e);
                 }
             }
             
-            handleVolumePress() {
-                const now = Date.now();
-                const volumeEnabled = document.getElementById('enableVolume').checked;
+            handleRealVolumePress() {
+                const volumeEnabled = document.getElementById('enableVolume')?.checked;
                 
                 if (!volumeEnabled || this.emergencyMode) return;
                 
-                // Reset if too much time has passed
+                const now = Date.now();
+                
+                // Reset if too much time has passed between presses
                 if (now - this.lastVolumePress > 1000) {
                     this.volumePressCount = 0;
                 }
@@ -1537,19 +1654,8 @@
                 this.volumePressCount++;
                 this.lastVolumePress = now;
                 
-                // Visual feedback
-                const indicator = document.getElementById('volumeIndicator');
-                if (indicator) {
-                    indicator.style.background = 'rgba(255, 59, 48, 0.4)';
-                    indicator.style.transform = 'scale(1.2)';
-                    setTimeout(() => {
-                        indicator.style.background = 'rgba(255, 59, 48, 0.2)';
-                        indicator.style.transform = 'scale(1)';
-                    }, 200);
-                }
-                
-                // Show count
-                this.showToast(`Volume pressed: ${this.volumePressCount}/3`, 'warning', 1000);
+                // Show subtle feedback (no visual button)
+                this.showToast(`Volume pressed: ${this.volumePressCount}/3`, 'warning', 800);
                 
                 // Clear previous timeout
                 if (this.volumePressTimeout) {
@@ -1565,22 +1671,22 @@
                 if (this.volumePressCount === 3) {
                     this.volumePressCount = 0;
                     this.triggerEmergency();
-                    this.showToast('🚨 Emergency triggered by volume button!', 'error');
+                    this.showToast('🚨 Emergency triggered by volume button!', 'error', 2000);
                 }
             }
             
-            // Calculator Functions
+            // Calculator Functions - FIXED
             updateDisplay() {
                 document.getElementById('displayCurrent').textContent = this.currentInput;
                 document.getElementById('displayHistory').textContent = this.previousInput + (this.operation ? ' ' + this.operation : '');
             }
             
             appendNumber(number) {
-                if (this.waitingForNewInput) {
+                if (this.waitingForNewInput || this.currentInput === '0') {
                     this.currentInput = String(number);
                     this.waitingForNewInput = false;
                 } else {
-                    this.currentInput = this.currentInput === '0' ? String(number) : this.currentInput + number;
+                    this.currentInput += String(number);
                 }
                 
                 // Check for emergency code: 100
@@ -1592,10 +1698,13 @@
             }
             
             appendDecimal() {
-                if (!this.currentInput.includes('.')) {
+                if (this.waitingForNewInput) {
+                    this.currentInput = '0.';
+                    this.waitingForNewInput = false;
+                } else if (!this.currentInput.includes('.')) {
                     this.currentInput += '.';
-                    this.updateDisplay();
                 }
+                this.updateDisplay();
             }
             
             clear() {
@@ -1619,7 +1728,7 @@
             setOperation(op) {
                 if (this.currentInput === '0' && this.previousInput) return;
                 
-                if (this.previousInput !== '') {
+                if (this.operation !== null && !this.waitingForNewInput) {
                     this.calculate();
                 }
                 
@@ -1630,6 +1739,8 @@
             }
             
             calculate() {
+                if (this.operation === null || this.waitingForNewInput) return;
+                
                 let computation;
                 const prev = parseFloat(this.previousInput);
                 const current = parseFloat(this.currentInput);
@@ -1640,20 +1751,27 @@
                     case '+': computation = prev + current; break;
                     case '-': computation = prev - current; break;
                     case '×': computation = prev * current; break;
-                    case '÷': computation = prev / current; break;
+                    case '÷': 
+                        if (current === 0) {
+                            this.showToast('Cannot divide by zero', 'error');
+                            return;
+                        }
+                        computation = prev / current; 
+                        break;
                     default: return;
                 }
                 
-                this.currentInput = String(computation);
+                // Check for emergency code 100 after calculation
+                if (Math.abs(computation - 100) < 0.000001) { // Handle floating point precision
+                    setTimeout(() => this.triggerEmergency(), 100);
+                }
+                
+                this.currentInput = String(Math.round(computation * 100000000) / 100000000); // Round to avoid floating point errors
                 this.operation = null;
                 this.previousInput = '';
                 this.waitingForNewInput = true;
-                this.updateDisplay();
                 
-                // Check if result is 100
-                if (this.currentInput === '100') {
-                    this.triggerEmergency();
-                }
+                this.updateDisplay();
             }
             
             // Emergency System
@@ -2116,6 +2234,27 @@ Silent SOS System.`;
                 setTimeout(() => toast.classList.remove('show'), duration);
             }
             
+            // Panel Management
+            openSettings() {
+                document.getElementById('settingsPanel').classList.add('active');
+                document.getElementById('aboutPanel').classList.remove('active');
+            }
+            
+            closeSettings() {
+                document.getElementById('settingsPanel').classList.remove('active');
+                this.setActiveNav('navCalculator');
+            }
+            
+            openAbout() {
+                document.getElementById('aboutPanel').classList.add('active');
+                document.getElementById('settingsPanel').classList.remove('active');
+            }
+            
+            closeAbout() {
+                document.getElementById('aboutPanel').classList.remove('active');
+                this.setActiveNav('navCalculator');
+            }
+            
             // Event Listeners
             setupEventListeners() {
                 // Login form
@@ -2169,8 +2308,20 @@ Silent SOS System.`;
                     });
                 });
                 
-                // Keyboard support
+                // Keyboard support - UPDATED FOR VOLUME BUTTONS
                 document.addEventListener('keydown', (e) => {
+                    // Check for volume buttons first
+                    const volumeEnabled = document.getElementById('enableVolume')?.checked;
+                    if (volumeEnabled && !this.emergencyMode) {
+                        if (e.code === 'VolumeUp' || e.code === 'VolumeDown' || 
+                            e.key === 'VolumeUp' || e.key === 'VolumeDown') {
+                            e.preventDefault();
+                            this.handleRealVolumePress();
+                            return;
+                        }
+                    }
+                    
+                    // Regular calculator keys
                     if (e.key >= '0' && e.key <= '9') {
                         this.appendNumber(e.key);
                     } else if (e.key === '.') {
@@ -2257,6 +2408,7 @@ Silent SOS System.`;
                 document.getElementById('navCalculator').addEventListener('click', () => {
                     this.setActiveNav('navCalculator');
                     this.closeSettings();
+                    this.closeAbout();
                 });
                 
                 document.getElementById('navSettings').addEventListener('click', () => {
@@ -2271,7 +2423,7 @@ Silent SOS System.`;
                 
                 document.getElementById('navAbout').addEventListener('click', () => {
                     this.setActiveNav('navAbout');
-                    this.showToast('Silent SOS System v4.0\nDisguised emergency alert system', 'info');
+                    this.openAbout();
                 });
                 
                 // Close settings
@@ -2279,12 +2431,19 @@ Silent SOS System.`;
                     this.closeSettings();
                 });
                 
+                // Close about
+                document.getElementById('closeAboutBtn').addEventListener('click', () => {
+                    this.closeAbout();
+                });
+                
                 // Triple tap detection
                 let tapCount = 0;
                 let lastTapTime = 0;
                 
                 document.addEventListener('click', (e) => {
-                    if (e.target.closest('.sos-overlay') || e.target.closest('.settings-panel')) return;
+                    if (e.target.closest('.sos-overlay') || 
+                        e.target.closest('.settings-panel') || 
+                        e.target.closest('.about-panel')) return;
                     
                     const tripleTapEnabled = document.getElementById('enableTripleTap').checked;
                     if (!tripleTapEnabled) return;
@@ -2329,15 +2488,6 @@ Silent SOS System.`;
                     nav.classList.remove('active');
                 });
                 document.getElementById(navId).classList.add('active');
-            }
-            
-            openSettings() {
-                document.getElementById('settingsPanel').classList.add('active');
-            }
-            
-            closeSettings() {
-                document.getElementById('settingsPanel').classList.remove('active');
-                this.setActiveNav('navCalculator');
             }
         }
         
