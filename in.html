@@ -1,0 +1,2365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="description" content="Silent SOS Calculator - Emergency alert system disguised as calculator">
+    <title>Calculator Pro</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABhUlEQVR4Ae3VA5AjQRTH8V1j27Zt27Zt27Zt27Zt27Zt27b9Xm7V7O1mdl7VK6L6Vb5/8qVOJwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPh6VZKLkhyUZIUkCyQZm3+ZKsk8SebmX6ZI0vO3+7dLMkqSXqlXjZZklyTj/ifIYkl6v05wT5KZf6En5Z43lTclGf1Hw9+UZPYfC79Xktl/LHy/JHP+UPhBScb/ofC5ksz9Q+G7JZkf/rWkvgqfK8m8P9TjvZLMC/9aUleFj5WkJ3yXJPP/UHh5Sfof/jnFwudJsuAPFb5Dknl/rMf7JFkQ/rWk1gofJ0lP+LWSLAz/WlJThY+VpCd8iySLw7+WVE3h4yXpCd8qyZLwryVVUfh4SXrCN0uyNPxrSZUU3hO+RZJl4V9LKqrwCZL0hG+UZHn415IKKXyCJD3hGyRZEf61pJwKnyhJT/g6SVaGfy0ph8InSdITvkaSVeFfS8qo8EmS9ISvkWR1+NeShi18siQ94askWRP+taQhCp8iSU/4SknWhn8taZDCp0rSE75CknXhX0tKFC4dAAAAAElFTkSuQmCC">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            user-select: none;
+        }
+
+        :root {
+            --primary-bg: #000000;
+            --calculator-bg: #0a0a0a;
+            --display-bg: #1a1a1a;
+            --button-bg: #333333;
+            --button-active: #444444;
+            --operator-bg: #ff9500;
+            --operator-active: #ffaa33;
+            --function-bg: #a6a6a6;
+            --function-active: #bfbfbf;
+            --sos-bg: #8b0000;
+            --sos-accent: #ff3b30;
+            --telegram: #0088cc;
+            --twilio: #f22f46;
+            --success: #34c759;
+            --warning: #ffcc00;
+            --text-primary: #ffffff;
+            --text-secondary: #cccccc;
+            --border-radius: 16px;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --primary-bg: #000000;
+                --calculator-bg: #0a0a0a;
+                --display-bg: #1a1a1a;
+                --button-bg: #333333;
+                --button-active: #444444;
+            }
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'SF Pro Display', system-ui, sans-serif;
+            background: var(--primary-bg);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+        }
+
+        /* Login Screen */
+        .login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .login-container {
+            background: var(--calculator-bg);
+            border-radius: var(--border-radius);
+            padding: 40px 30px;
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: var(--shadow);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .login-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .login-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .login-subtitle {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .form-input {
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 16px;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--operator-bg);
+        }
+
+        .form-select {
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 16px;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 20px;
+        }
+
+        .login-button {
+            padding: 18px;
+            background: var(--operator-bg);
+            color: var(--text-primary);
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 10px;
+        }
+
+        .login-button:active {
+            transform: scale(0.98);
+            background: var(--operator-active);
+        }
+
+        .login-footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* App Header */
+        .app-header {
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
+        }
+
+        .app-title {
+            font-size: 17px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            color: var(--text-primary);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--operator-bg), var(--telegram));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .user-name {
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .logout-btn {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        /* Calculator Container */
+        .calculator-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 500px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        /* Calculator Display */
+        .calculator-display {
+            flex: 1;
+            background: var(--display-bg);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: flex-end;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .display-history {
+            font-size: 20px;
+            color: var(--text-secondary);
+            min-height: 24px;
+            margin-bottom: 8px;
+            text-align: right;
+            width: 100%;
+            opacity: 0.8;
+        }
+
+        .display-current {
+            font-size: clamp(48px, 8vw, 64px);
+            font-weight: 300;
+            line-height: 1;
+            text-align: right;
+            width: 100%;
+            word-break: break-all;
+            font-feature-settings: "tnum";
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Calculator Buttons Grid */
+        .calculator-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .calc-button {
+            aspect-ratio: 1;
+            border: none;
+            border-radius: 50%;
+            font-size: 28px;
+            font-weight: 400;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--button-bg);
+            color: var(--text-primary);
+            touch-action: manipulation;
+            -webkit-touch-callout: none;
+        }
+
+        .calc-button:active {
+            transform: scale(0.95);
+            background: var(--button-active);
+        }
+
+        .calc-button.zero {
+            grid-column: span 2;
+            aspect-ratio: 2/1;
+            border-radius: 50px;
+            justify-content: flex-start;
+            padding-left: 32px;
+        }
+
+        .calc-button.function {
+            background: var(--function-bg);
+            color: #000000;
+        }
+
+        .calc-button.function:active {
+            background: var(--function-active);
+        }
+
+        .calc-button.operator {
+            background: var(--operator-bg);
+            color: var(--text-primary);
+        }
+
+        .calc-button.operator:active {
+            background: var(--operator-active);
+        }
+
+        /* SOS Overlay */
+        .sos-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .sos-container {
+            background: linear-gradient(135deg, var(--sos-bg), #4a0000);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            border: 3px solid var(--sos-accent);
+            box-shadow: 0 0 60px rgba(255, 59, 48, 0.4);
+            text-align: center;
+        }
+
+        .sos-header {
+            margin-bottom: 24px;
+        }
+
+        .sos-icon {
+            font-size: 56px;
+            margin-bottom: 16px;
+            animation: shake 0.5s infinite;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .sos-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .sos-subtitle {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 32px;
+        }
+
+        .countdown-container {
+            margin: 32px 0;
+        }
+
+        .countdown-number {
+            font-size: 80px;
+            font-weight: 800;
+            color: var(--warning);
+            line-height: 1;
+            animation: pulse 1s infinite;
+        }
+
+        .countdown-label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .sos-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .stat-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 16px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .sos-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 32px;
+        }
+
+        .action-button {
+            padding: 18px;
+            border: none;
+            border-radius: 14px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .action-button:active {
+            transform: scale(0.98);
+        }
+
+        .action-button.primary {
+            background: var(--success);
+            color: var(--text-primary);
+        }
+
+        .action-button.secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+        }
+
+        /* Quick Access Buttons */
+        .quick-access {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .quick-button {
+            padding: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--border-radius);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .quick-button:active {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(0.98);
+        }
+
+        .quick-button.telegram {
+            border-color: var(--telegram);
+            color: var(--telegram);
+        }
+
+        .quick-button.twilio {
+            border-color: var(--twilio);
+            color: var(--twilio);
+        }
+
+        /* Settings Panel */
+        .settings-panel {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            max-width: 400px;
+            height: 100%;
+            background: var(--calculator-bg);
+            z-index: 2000;
+            transition: right 0.3s ease;
+            overflow-y: auto;
+            padding: 20px;
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .settings-panel.active {
+            right: 0;
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .settings-title {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .close-button {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--text-primary);
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .settings-section {
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 16px;
+            transition: border-color 0.2s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--operator-bg);
+        }
+
+        .save-button {
+            width: 100%;
+            padding: 18px;
+            background: var(--operator-bg);
+            color: var(--text-primary);
+            border: none;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 8px;
+        }
+
+        .save-button:active {
+            transform: scale(0.98);
+            background: var(--operator-active);
+        }
+
+        .contacts-list {
+            margin-top: 16px;
+        }
+
+        .contact-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .contact-info {
+            flex: 1;
+        }
+
+        .contact-name {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .contact-phone {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .contact-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .icon-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--text-primary);
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Emergency Button */
+        .emergency-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--sos-accent), #ff0000);
+            border-radius: 50%;
+            border: 3px solid rgba(255, 255, 255, 0.9);
+            color: var(--text-primary);
+            font-size: 24px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 32px rgba(255, 59, 48, 0.4);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            animation: glow 2s infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 8px 32px rgba(255, 59, 48, 0.4); }
+            50% { box-shadow: 0 8px 48px rgba(255, 59, 48, 0.6); }
+        }
+
+        .emergency-button:active {
+            transform: scale(0.9);
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 20px;
+            padding-bottom: max(12px, env(safe-area-inset-bottom));
+            z-index: 99;
+        }
+
+        .nav-button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            transition: color 0.2s ease;
+        }
+
+        .nav-button.active {
+            color: var(--operator-bg);
+        }
+
+        .nav-icon {
+            font-size: 22px;
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--display-bg);
+            padding: 16px 24px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 2000;
+            opacity: 0;
+            transition: all 0.3s ease;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .toast.error {
+            border-left: 4px solid var(--sos-accent);
+        }
+
+        .toast.warning {
+            border-left: 4px solid var(--warning);
+        }
+
+        /* Trigger Guide */
+        .trigger-guide {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 300px;
+            z-index: 90;
+            backdrop-filter: blur(10px);
+        }
+
+        .trigger-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--warning);
+        }
+
+        .trigger-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .trigger-icon {
+            font-size: 18px;
+        }
+
+        /* Volume Trigger Indicator */
+        .volume-trigger-indicator {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 59, 48, 0.2);
+            border: 2px solid var(--sos-accent);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            z-index: 90;
+            animation: volumePulse 2s infinite;
+        }
+
+        @keyframes volumePulse {
+            0%, 100% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .calculator-container {
+                padding: 16px;
+            }
+            
+            .calculator-display {
+                padding: 20px;
+            }
+            
+            .display-current {
+                font-size: clamp(40px, 10vw, 56px);
+            }
+            
+            .calc-button {
+                font-size: 24px;
+            }
+            
+            .sos-container {
+                padding: 24px;
+            }
+            
+            .sos-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .emergency-button {
+                width: 60px;
+                height: 60px;
+                bottom: 20px;
+                right: 20px;
+            }
+            
+            .trigger-guide {
+                top: 70px;
+                right: 10px;
+                max-width: 250px;
+            }
+            
+            .volume-trigger-indicator {
+                top: 15px;
+                left: 15px;
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .app-header {
+                padding: 12px 16px;
+            }
+            
+            .calculator-buttons {
+                gap: 10px;
+            }
+            
+            .calc-button {
+                font-size: 22px;
+            }
+            
+            .quick-access {
+                grid-template-columns: 1fr;
+            }
+            
+            .login-container {
+                padding: 30px 20px;
+            }
+            
+            .login-icon {
+                font-size: 48px;
+            }
+            
+            .login-title {
+                font-size: 24px;
+            }
+        }
+
+        /* Tablet Optimizations */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .calculator-container {
+                max-width: 600px;
+            }
+            
+            .display-current {
+                font-size: 72px;
+            }
+            
+            .calc-button {
+                font-size: 32px;
+            }
+        }
+
+        /* Desktop Optimizations */
+        @media (min-width: 1024px) {
+            body {
+                justify-content: center;
+                align-items: center;
+            }
+            
+            .calculator-container {
+                max-width: 400px;
+            }
+            
+            .emergency-button {
+                bottom: 50%;
+                right: 50px;
+                transform: translateY(50%);
+            }
+            
+            .emergency-button:hover {
+                transform: translateY(50%) scale(1.1);
+            }
+            
+            .login-container {
+                max-width: 450px;
+            }
+        }
+
+        /* Dark mode adjustments */
+        @media (prefers-color-scheme: light) {
+            :root {
+                --primary-bg: #f2f2f7;
+                --calculator-bg: #ffffff;
+                --display-bg: #f2f2f7;
+                --button-bg: #e5e5ea;
+                --button-active: #d1d1d6;
+                --function-bg: #d1d1d6;
+                --function-active: #c7c7cc;
+                --text-primary: #000000;
+                --text-secondary: #666666;
+            }
+            
+            .bottom-nav {
+                background: rgba(255, 255, 255, 0.95);
+            }
+            
+            .settings-panel {
+                background: var(--calculator-bg);
+            }
+            
+            .login-container {
+                background: var(--calculator-bg);
+            }
+            
+            .trigger-guide {
+                background: rgba(255, 255, 255, 0.9);
+            }
+        }
+
+        /* Animation for emergency mode */
+        .emergency-mode .display-current {
+            animation: emergencyPulse 0.5s infinite alternate;
+            color: var(--sos-accent);
+        }
+
+        @keyframes emergencyPulse {
+            from { text-shadow: 0 0 10px rgba(255, 59, 48, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 59, 48, 0.8); }
+        }
+
+        /* Hide scrollbar but keep functionality */
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-container">
+            <div class="login-header">
+                <div class="login-icon">🔒</div>
+                <h1 class="login-title">Silent SOS Login</h1>
+                <p class="login-subtitle">Secure emergency alert system</p>
+            </div>
+            
+            <form class="login-form" id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" class="form-input" id="userName" placeholder="Enter your full name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Emergency Contact</label>
+                    <input type="tel" class="form-input" id="userPhone" placeholder="+919876543210" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Blood Group</label>
+                    <select class="form-select" id="userBloodGroup">
+                        <option value="">Select Blood Group</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Medical Conditions (Optional)</label>
+                    <input type="text" class="form-input" id="userMedical" placeholder="Diabetes, Asthma, etc.">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Allergies (Optional)</label>
+                    <input type="text" class="form-input" id="userAllergies" placeholder="Peanuts, Penicillin, etc.">
+                </div>
+                
+                <button type="submit" class="login-button">🔐 Setup Security Profile</button>
+            </form>
+            
+            <div class="login-footer">
+                Your data is stored locally and never shared
+            </div>
+        </div>
+    </div>
+
+    <!-- Volume Trigger Indicator -->
+    <div class="volume-trigger-indicator" id="volumeIndicator" title="Volume Button SOS Trigger">
+        🔊
+    </div>
+
+    <!-- Trigger Guide -->
+    <div class="trigger-guide">
+        <div class="trigger-title">📢 Emergency Triggers:</div>
+        <div class="trigger-item">
+            <span class="trigger-icon">🧮</span>
+            <span>Type "100=" on calculator</span>
+        </div>
+        <div class="trigger-item">
+            <span class="trigger-icon">🔴</span>
+            <span>Click SOS button</span>
+        </div>
+        <div class="trigger-item">
+            <span class="trigger-icon">👆👆👆</span>
+            <span>Triple tap screen</span>
+        </div>
+        <div class="trigger-item">
+            <span class="trigger-icon">📱</span>
+            <span>Press volume button 3x</span>
+        </div>
+        <div class="trigger-item">
+            <span class="trigger-icon">📳</span>
+            <span>Shake phone vigorously</span>
+        </div>
+    </div>
+
+    <!-- App Header -->
+    <div class="app-header" style="display: none;" id="appHeader">
+        <div class="app-title">Calculator Pro</div>
+        <div class="user-info">
+            <div class="user-avatar" id="userAvatar">K</div>
+            <div class="user-name" id="userDisplayName">Kanishka</div>
+            <button class="logout-btn" id="logoutBtn">Logout</button>
+        </div>
+    </div>
+
+    <!-- Main Calculator -->
+    <div class="calculator-container" style="display: none;" id="calculatorContainer">
+        <div class="calculator-display">
+            <div class="display-history" id="displayHistory"></div>
+            <div class="display-current" id="displayCurrent">0</div>
+        </div>
+
+        <div class="calculator-buttons">
+            <!-- Row 1 -->
+            <button class="calc-button function" data-action="clear">C</button>
+            <button class="calc-button function" data-action="toggle">±</button>
+            <button class="calc-button function" data-action="percent">%</button>
+            <button class="calc-button operator" data-action="divide">÷</button>
+            
+            <!-- Row 2 -->
+            <button class="calc-button number" data-number="7">7</button>
+            <button class="calc-button number" data-number="8">8</button>
+            <button class="calc-button number" data-number="9">9</button>
+            <button class="calc-button operator" data-action="multiply">×</button>
+            
+            <!-- Row 3 -->
+            <button class="calc-button number" data-number="4">4</button>
+            <button class="calc-button number" data-number="5">5</button>
+            <button class="calc-button number" data-number="6">6</button>
+            <button class="calc-button operator" data-action="subtract">-</button>
+            
+            <!-- Row 4 -->
+            <button class="calc-button number" data-number="1">1</button>
+            <button class="calc-button number" data-number="2">2</button>
+            <button class="calc-button number" data-number="3">3</button>
+            <button class="calc-button operator" data-action="add">+</button>
+            
+            <!-- Row 5 -->
+            <button class="calc-button number zero" data-number="0">0</button>
+            <button class="calc-button" data-action="decimal">.</button>
+            <button class="calc-button operator" data-action="equals">=</button>
+        </div>
+
+        <!-- Quick Access Buttons -->
+        <div class="quick-access">
+            <button class="quick-button telegram" id="testTelegramBtn">
+                <span>📱</span> Test Telegram
+            </button>
+            <button class="quick-button twilio" id="testTwilioBtn">
+                <span>📲</span> Test SMS
+            </button>
+        </div>
+    </div>
+
+    <!-- SOS Emergency Overlay -->
+    <div class="sos-overlay" id="sosOverlay">
+        <div class="sos-container">
+            <div class="sos-header">
+                <div class="sos-icon">🚨</div>
+                <h1 class="sos-title">SILENT SOS ACTIVATED</h1>
+                <p class="sos-subtitle">Emergency alert will be sent in:</p>
+            </div>
+            
+            <div class="countdown-container">
+                <div class="countdown-number" id="countdownNumber">5</div>
+                <div class="countdown-label">SECONDS</div>
+            </div>
+            
+            <div class="sos-stats">
+                <div class="stat-item">
+                    <div class="stat-icon">📍</div>
+                    <div class="stat-label">LOCATION</div>
+                    <div class="stat-value" id="locationStatus">Getting...</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon">👤</div>
+                    <div class="stat-label">USER</div>
+                    <div class="stat-value" id="userStatus">Loading...</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon">📞</div>
+                    <div class="stat-label">CONTACTS</div>
+                    <div class="stat-value" id="contactsStatus">0 Ready</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon">⏱️</div>
+                    <div class="stat-label">TIME</div>
+                    <div class="stat-value" id="emergencyTime">00:00</div>
+                </div>
+            </div>
+            
+            <div class="sos-actions">
+                <button class="action-button secondary" id="cancelSOSBtn">
+                    <span>✖️</span> Cancel
+                </button>
+                <button class="action-button primary" id="sendNowBtn">
+                    <span>🚀</span> Send Now
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Panel -->
+    <div class="settings-panel" id="settingsPanel">
+        <div class="settings-header">
+            <h2 class="settings-title">Emergency Settings</h2>
+            <button class="close-button" id="closeSettingsBtn">×</button>
+        </div>
+        
+        <div class="settings-section">
+            <h3 class="section-title">User Profile</h3>
+            <div class="input-group">
+                <label class="input-label">Full Name</label>
+                <input type="text" class="input-field" id="profileName" placeholder="Your name">
+            </div>
+            <div class="input-group">
+                <label class="input-label">Emergency Phone</label>
+                <input type="tel" class="input-field" id="profilePhone" placeholder="+919876543210">
+            </div>
+            <button class="save-button" id="saveProfileBtn">Update Profile</button>
+        </div>
+        
+        <div class="settings-section">
+            <h3 class="section-title">Telegram Configuration</h3>
+            <div class="input-group">
+                <label class="input-label">Bot Token</label>
+                <input type="text" class="input-field" id="botTokenInput" 
+                       placeholder="8226399006:AAGCjQO1bKymWjcbC5VYr..." 
+                       value="8226399006:AAGCjQO1bKymWjcbC5VYr9WcNVP27h5itRE">
+            </div>
+            <div class="input-group">
+                <label class="input-label">Chat ID</label>
+                <input type="text" class="input-field" id="chatIdInput" 
+                       placeholder="1490702414" 
+                       value="1490702414">
+            </div>
+            <button class="save-button" id="saveTelegramBtn">Save Telegram</button>
+        </div>
+        
+        <div class="settings-section">
+            <h3 class="section-title">Twilio SMS Configuration</h3>
+            <div class="input-group">
+                <label class="input-label">Account SID</label>
+                <input type="text" class="input-field" id="twilioSid" placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+            </div>
+            <div class="input-group">
+                <label class="input-label">Auth Token</label>
+                <input type="password" class="input-field" id="twilioToken" placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+            </div>
+            <div class="input-group">
+                <label class="input-label">Twilio Phone Number</label>
+                <input type="tel" class="input-field" id="twilioPhone" placeholder="+12345678900">
+            </div>
+            <button class="save-button" id="saveTwilioBtn">Save Twilio</button>
+        </div>
+        
+        <div class="settings-section">
+            <h3 class="section-title">Emergency Contacts (SMS)</h3>
+            <div class="input-group">
+                <label class="input-label">Contact Name</label>
+                <input type="text" class="input-field" id="contactNameInput" placeholder="John Doe">
+            </div>
+            <div class="input-group">
+                <label class="input-label">Phone Number</label>
+                <input type="tel" class="input-field" id="contactPhoneInput" placeholder="+919876543210">
+            </div>
+            <button class="save-button" id="saveContactBtn">Add SMS Contact</button>
+            
+            <div class="contacts-list" id="contactsList">
+                <!-- Contacts will be added here dynamically -->
+            </div>
+        </div>
+        
+        <div class="settings-section">
+            <h3 class="section-title">Emergency Triggers</h3>
+            <div class="input-group">
+                <label class="input-label">
+                    <input type="checkbox" id="enableTripleTap" checked> Triple Tap Screen
+                </label>
+            </div>
+            <div class="input-group">
+                <label class="input-label">
+                    <input type="checkbox" id="enableShake" checked> Shake Phone
+                </label>
+            </div>
+            <div class="input-group">
+                <label class="input-label">
+                    <input type="checkbox" id="enableVolume" checked> Volume Button 3x
+                </label>
+            </div>
+            <div class="input-group">
+                <label class="input-label">Secret Code</label>
+                <input type="text" class="input-field" value="100=" readonly>
+            </div>
+        </div>
+        
+        <div class="settings-section">
+            <h3 class="section-title">System Status</h3>
+            <div class="stat-item">
+                <div class="stat-label">TELEGRAM</div>
+                <div class="stat-value" id="telegramStatus">Disconnected</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">TWILIO SMS</div>
+                <div class="stat-value" id="twilioStatus">Not Configured</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">LOCATION</div>
+                <div class="stat-value" id="systemLocation">Available</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">CONTACTS</div>
+                <div class="stat-value" id="totalContacts">0</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Emergency Button -->
+    <button class="emergency-button" id="emergencyButton" title="Emergency SOS">
+        SOS
+    </button>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <button class="nav-button active" id="navCalculator">
+            <span class="nav-icon">🧮</span>
+            <span>Calculator</span>
+        </button>
+        <button class="nav-button" id="navSettings">
+            <span class="nav-icon">⚙️</span>
+            <span>Settings</span>
+        </button>
+        <button class="nav-button" id="navTest">
+            <span class="nav-icon">🚨</span>
+            <span>Test</span>
+        </button>
+        <button class="nav-button" id="navAbout">
+            <span class="nav-icon">ℹ️</span>
+            <span>About</span>
+        </button>
+    </nav>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Main Application Script -->
+    <script>
+        class CalculatorSOS {
+            constructor() {
+                this.currentInput = '0';
+                this.previousInput = '';
+                this.operation = null;
+                this.waitingForNewInput = false;
+                
+                this.emergencyMode = false;
+                this.countdown = 5;
+                this.countdownInterval = null;
+                this.currentLocation = null;
+                
+                // User data
+                this.userProfile = null;
+                this.isLoggedIn = false;
+                
+                // Services
+                this.telegramConnected = false;
+                this.twilioConfigured = false;
+                this.twilioSid = '';
+                this.twilioToken = '';
+                this.twilioPhone = '';
+                
+                // Contacts
+                this.smsContacts = [];
+                
+                // Volume button tracking
+                this.volumePressCount = 0;
+                this.lastVolumePress = 0;
+                this.volumePressTimeout = null;
+                
+                // Telegram config (pre-configured)
+                this.TELEGRAM_BOT_TOKEN = '8226399006:AAGCjQO1bKymWjcbC5VYr9WcNVP27h5itRE';
+                this.TELEGRAM_CHAT_ID = '1490702414';
+                
+                this.init();
+            }
+            
+            init() {
+                this.checkLogin();
+                this.setupEventListeners();
+                this.setupVolumeButtonDetection();
+                this.updateTime();
+                
+                // Update time every minute
+                setInterval(() => this.updateTime(), 60000);
+            }
+            
+            checkLogin() {
+                const savedProfile = localStorage.getItem('sos_user_profile');
+                if (savedProfile) {
+                    this.userProfile = JSON.parse(savedProfile);
+                    this.isLoggedIn = true;
+                    this.showMainApp();
+                } else {
+                    this.showLoginScreen();
+                }
+                
+                // Load other settings
+                this.loadSettings();
+            }
+            
+            showLoginScreen() {
+                document.getElementById('loginScreen').style.display = 'flex';
+                document.getElementById('appHeader').style.display = 'none';
+                document.getElementById('calculatorContainer').style.display = 'none';
+            }
+            
+            showMainApp() {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('appHeader').style.display = 'flex';
+                document.getElementById('calculatorContainer').style.display = 'flex';
+                
+                // Update user info
+                if (this.userProfile) {
+                    document.getElementById('userDisplayName').textContent = this.userProfile.name;
+                    document.getElementById('userAvatar').textContent = this.userProfile.name.charAt(0);
+                    document.getElementById('userStatus').textContent = this.userProfile.name;
+                    
+                    // Update profile form
+                    document.getElementById('profileName').value = this.userProfile.name;
+                    document.getElementById('profilePhone').value = this.userProfile.phone;
+                }
+                
+                this.updateDisplay();
+            }
+            
+            loginUser(profileData) {
+                this.userProfile = profileData;
+                this.isLoggedIn = true;
+                
+                localStorage.setItem('sos_user_profile', JSON.stringify(profileData));
+                this.showMainApp();
+                this.showToast('✅ Profile setup complete!', 'success');
+            }
+            
+            logoutUser() {
+                this.isLoggedIn = false;
+                this.userProfile = null;
+                localStorage.removeItem('sos_user_profile');
+                this.showLoginScreen();
+                this.showToast('Logged out successfully', 'success');
+            }
+            
+            loadSettings() {
+                // Load SMS contacts
+                const savedContacts = localStorage.getItem('sos_sms_contacts');
+                this.smsContacts = savedContacts ? JSON.parse(savedContacts) : [];
+                this.updateContactsList();
+                
+                // Load Twilio settings
+                this.twilioSid = localStorage.getItem('twilio_sid') || '';
+                this.twilioToken = localStorage.getItem('twilio_token') || '';
+                this.twilioPhone = localStorage.getItem('twilio_phone') || '';
+                
+                // Update UI
+                document.getElementById('twilioSid').value = this.twilioSid;
+                document.getElementById('twilioToken').value = this.twilioToken;
+                document.getElementById('twilioPhone').value = this.twilioPhone;
+                
+                // Check Twilio status
+                this.twilioConfigured = !!(this.twilioSid && this.twilioToken && this.twilioPhone);
+                document.getElementById('twilioStatus').textContent = 
+                    this.twilioConfigured ? 'Configured' : 'Not Configured';
+                document.getElementById('twilioStatus').style.color = 
+                    this.twilioConfigured ? 'var(--success)' : 'var(--warning)';
+                
+                this.updateSystemStatus();
+            }
+            
+            // Volume Button Detection
+            setupVolumeButtonDetection() {
+                let volumeUpPressed = false;
+                let volumeDownPressed = false;
+                
+                // Listen for keydown events
+                document.addEventListener('keydown', (e) => {
+                    if (e.code === 'VolumeUp' || e.code === 'ArrowUp') {
+                        volumeUpPressed = true;
+                        this.handleVolumePress();
+                    } else if (e.code === 'VolumeDown' || e.code === 'ArrowDown') {
+                        volumeDownPressed = true;
+                        this.handleVolumePress();
+                    }
+                });
+                
+                // Listen for keyup events
+                document.addEventListener('keyup', (e) => {
+                    if (e.code === 'VolumeUp' || e.code === 'ArrowUp') {
+                        volumeUpPressed = false;
+                    } else if (e.code === 'VolumeDown' || e.code === 'ArrowDown') {
+                        volumeDownPressed = false;
+                    }
+                });
+                
+                // Also simulate with buttons for desktop testing
+                const volumeIndicator = document.getElementById('volumeIndicator');
+                if (volumeIndicator) {
+                    volumeIndicator.addEventListener('click', () => {
+                        this.handleVolumePress();
+                    });
+                }
+            }
+            
+            handleVolumePress() {
+                const now = Date.now();
+                const volumeEnabled = document.getElementById('enableVolume').checked;
+                
+                if (!volumeEnabled || this.emergencyMode) return;
+                
+                // Reset if too much time has passed
+                if (now - this.lastVolumePress > 1000) {
+                    this.volumePressCount = 0;
+                }
+                
+                this.volumePressCount++;
+                this.lastVolumePress = now;
+                
+                // Visual feedback
+                const indicator = document.getElementById('volumeIndicator');
+                if (indicator) {
+                    indicator.style.background = 'rgba(255, 59, 48, 0.4)';
+                    indicator.style.transform = 'scale(1.2)';
+                    setTimeout(() => {
+                        indicator.style.background = 'rgba(255, 59, 48, 0.2)';
+                        indicator.style.transform = 'scale(1)';
+                    }, 200);
+                }
+                
+                // Show count
+                this.showToast(`Volume pressed: ${this.volumePressCount}/3`, 'warning', 1000);
+                
+                // Clear previous timeout
+                if (this.volumePressTimeout) {
+                    clearTimeout(this.volumePressTimeout);
+                }
+                
+                // Set timeout to reset count
+                this.volumePressTimeout = setTimeout(() => {
+                    this.volumePressCount = 0;
+                }, 1000);
+                
+                // Check for triple press
+                if (this.volumePressCount === 3) {
+                    this.volumePressCount = 0;
+                    this.triggerEmergency();
+                    this.showToast('🚨 Emergency triggered by volume button!', 'error');
+                }
+            }
+            
+            // Calculator Functions
+            updateDisplay() {
+                document.getElementById('displayCurrent').textContent = this.currentInput;
+                document.getElementById('displayHistory').textContent = this.previousInput + (this.operation ? ' ' + this.operation : '');
+            }
+            
+            appendNumber(number) {
+                if (this.waitingForNewInput) {
+                    this.currentInput = String(number);
+                    this.waitingForNewInput = false;
+                } else {
+                    this.currentInput = this.currentInput === '0' ? String(number) : this.currentInput + number;
+                }
+                
+                // Check for emergency code: 100
+                if (this.currentInput === '100') {
+                    this.triggerEmergency();
+                }
+                
+                this.updateDisplay();
+            }
+            
+            appendDecimal() {
+                if (!this.currentInput.includes('.')) {
+                    this.currentInput += '.';
+                    this.updateDisplay();
+                }
+            }
+            
+            clear() {
+                this.currentInput = '0';
+                this.previousInput = '';
+                this.operation = null;
+                this.waitingForNewInput = false;
+                this.updateDisplay();
+            }
+            
+            toggleSign() {
+                this.currentInput = String(parseFloat(this.currentInput) * -1);
+                this.updateDisplay();
+            }
+            
+            percentage() {
+                this.currentInput = String(parseFloat(this.currentInput) / 100);
+                this.updateDisplay();
+            }
+            
+            setOperation(op) {
+                if (this.currentInput === '0' && this.previousInput) return;
+                
+                if (this.previousInput !== '') {
+                    this.calculate();
+                }
+                
+                this.operation = op;
+                this.previousInput = this.currentInput;
+                this.waitingForNewInput = true;
+                this.updateDisplay();
+            }
+            
+            calculate() {
+                let computation;
+                const prev = parseFloat(this.previousInput);
+                const current = parseFloat(this.currentInput);
+                
+                if (isNaN(prev) || isNaN(current)) return;
+                
+                switch (this.operation) {
+                    case '+': computation = prev + current; break;
+                    case '-': computation = prev - current; break;
+                    case '×': computation = prev * current; break;
+                    case '÷': computation = prev / current; break;
+                    default: return;
+                }
+                
+                this.currentInput = String(computation);
+                this.operation = null;
+                this.previousInput = '';
+                this.waitingForNewInput = true;
+                this.updateDisplay();
+                
+                // Check if result is 100
+                if (this.currentInput === '100') {
+                    this.triggerEmergency();
+                }
+            }
+            
+            // Emergency System
+            async triggerEmergency() {
+                if (this.emergencyMode || !this.isLoggedIn) return;
+                
+                this.emergencyMode = true;
+                document.body.classList.add('emergency-mode');
+                document.getElementById('sosOverlay').style.display = 'flex';
+                
+                this.countdown = 5;
+                document.getElementById('countdownNumber').textContent = this.countdown;
+                document.getElementById('emergencyTime').textContent = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                document.getElementById('userStatus').textContent = this.userProfile?.name || 'Unknown';
+                document.getElementById('contactsStatus').textContent = `${this.smsContacts.length} Ready`;
+                
+                // Start countdown
+                this.countdownInterval = setInterval(() => {
+                    this.countdown--;
+                    document.getElementById('countdownNumber').textContent = this.countdown;
+                    
+                    if (this.countdown <= 0) {
+                        clearInterval(this.countdownInterval);
+                        this.sendEmergencyAlert();
+                    }
+                }, 1000);
+                
+                // Get location
+                await this.getLocation();
+            }
+            
+            async getLocation() {
+                document.getElementById('locationStatus').textContent = 'Getting...';
+                
+                return new Promise((resolve) => {
+                    if (!navigator.geolocation) {
+                        document.getElementById('locationStatus').textContent = 'Unavailable';
+                        resolve(null);
+                        return;
+                    }
+                    
+                    navigator.geolocation.getCurrentPosition(
+                        async (position) => {
+                            const lat = position.coords.latitude;
+                            const lng = position.coords.longitude;
+                            
+                            let address = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+                            try {
+                                const response = await fetch(
+                                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
+                                );
+                                const data = await response.json();
+                                if (data.display_name) {
+                                    address = data.display_name.split(',').slice(0, 2).join(', ');
+                                }
+                            } catch (e) {
+                                console.log('Address lookup failed');
+                            }
+                            
+                            this.currentLocation = {
+                                lat: lat,
+                                lng: lng,
+                                address: address,
+                                accuracy: Math.round(position.coords.accuracy),
+                                mapsUrl: `https://maps.google.com/?q=${lat},${lng}`
+                            };
+                            
+                            document.getElementById('locationStatus').textContent = 'Ready';
+                            resolve(this.currentLocation);
+                        },
+                        (error) => {
+                            console.log('Location error:', error);
+                            document.getElementById('locationStatus').textContent = 'Denied';
+                            resolve(null);
+                        },
+                        {
+                            enableHighAccuracy: true,
+                            timeout: 10000,
+                            maximumAge: 0
+                        }
+                    );
+                });
+            }
+            
+            async sendEmergencyAlert() {
+                if (!this.currentLocation) {
+                    await this.getLocation();
+                }
+                
+                // Send Telegram alert
+                await this.sendTelegramAlert();
+                
+                // Send SMS alerts if configured
+                if (this.twilioConfigured && this.smsContacts.length > 0) {
+                    await this.sendSMSAlerts();
+                }
+            }
+            
+            async sendTelegramAlert() {
+                const message = this.createEmergencyMessage();
+                
+                try {
+                    const response = await fetch(`https://api.telegram.org/bot${this.TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            chat_id: this.TELEGRAM_CHAT_ID,
+                            text: message,
+                            parse_mode: 'HTML'
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.ok) {
+                        this.showToast('✅ Telegram alert sent!', 'success');
+                        
+                        // Send location if available
+                        if (this.currentLocation?.lat && this.currentLocation?.lng) {
+                            await fetch(`https://api.telegram.org/bot${this.TELEGRAM_BOT_TOKEN}/sendLocation`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    chat_id: this.TELEGRAM_CHAT_ID,
+                                    latitude: this.currentLocation.lat,
+                                    longitude: this.currentLocation.lng
+                                })
+                            });
+                        }
+                        
+                        return true;
+                    } else {
+                        throw new Error(result.description);
+                    }
+                } catch (error) {
+                    console.error('Telegram error:', error);
+                    this.showToast('❌ Telegram failed', 'error');
+                    return false;
+                }
+            }
+            
+            async sendSMSAlerts() {
+                if (!this.twilioConfigured || this.smsContacts.length === 0) {
+                    return;
+                }
+                
+                const message = this.createSMSMessage();
+                let successCount = 0;
+                
+                for (const contact of this.smsContacts) {
+                    try {
+                        const sent = await this.sendSingleSMS(contact.phone, message);
+                        if (sent) {
+                            successCount++;
+                        }
+                    } catch (error) {
+                        console.error('SMS failed for', contact.phone, error);
+                    }
+                }
+                
+                if (successCount > 0) {
+                    this.showToast(`✅ SMS sent to ${successCount} contacts`, 'success');
+                }
+            }
+            
+            async sendSingleSMS(toPhone, messageBody) {
+                if (!this.twilioConfigured) return false;
+                
+                try {
+                    // Encode Twilio credentials for Basic Auth
+                    const authString = btoa(`${this.twilioSid}:${this.twilioToken}`);
+                    
+                    const response = await fetch(
+                        `https://api.twilio.com/2010-04-01/Accounts/${this.twilioSid}/Messages.json`,
+                        {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': `Basic ${authString}`,
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            },
+                            body: new URLSearchParams({
+                                To: toPhone,
+                                From: this.twilioPhone,
+                                Body: messageBody
+                            })
+                        }
+                    );
+                    
+                    const result = await response.json();
+                    return !result.error_code;
+                    
+                } catch (error) {
+                    console.error('SMS error:', error);
+                    return false;
+                }
+            }
+            
+            createEmergencyMessage() {
+                const time = new Date().toLocaleTimeString();
+                const date = new Date().toDateString();
+                const location = this.currentLocation?.address || 'Location unavailable';
+                const mapsUrl = this.currentLocation?.mapsUrl || 'https://maps.google.com';
+                
+                let userInfo = `• Name: ${this.userProfile?.name || 'Unknown'}\n`;
+                userInfo += `• Phone: ${this.userProfile?.phone || 'Not provided'}\n`;
+                if (this.userProfile?.bloodGroup) userInfo += `• Blood Group: ${this.userProfile.bloodGroup}\n`;
+                if (this.userProfile?.medical) userInfo += `• Medical: ${this.userProfile.medical}\n`;
+                if (this.userProfile?.allergies) userInfo += `• Allergies: ${this.userProfile.allergies}\n`;
+                
+                return `<b>🚨 EMERGENCY SOS ALERT 🚨</b>
+
+<b>⚠️ URGENT:</b> I need immediate assistance!
+
+<b>📍 Location:</b> ${location}
+<b>🗺️ Maps:</b> <a href="${mapsUrl}">${mapsUrl}</a>
+<b>🕐 Time:</b> ${time}
+<b>📅 Date:</b> ${date}
+
+<b>👤 USER INFO:</b>
+${userInfo}
+<b>🚨 EMERGENCY SERVICES:</b>
+• Police: 100
+• Ambulance: 102
+• Women Helpline: 1091
+
+<b>📋 SAFETY PROTOCOL:</b>
+1. Contact local police immediately
+2. Forward this alert to authorities
+3. Do not approach alone - bring help
+
+<i>🔒 Automated alert from Silent SOS System
+⚠️ User may be in danger and unable to speak</i>`;
+            }
+            
+            createSMSMessage() {
+                const time = new Date().toLocaleTimeString();
+                const date = new Date().toDateString();
+                const location = this.currentLocation?.address || 'Location unavailable';
+                const mapsUrl = this.currentLocation?.mapsUrl || 'https://maps.google.com';
+                
+                let userInfo = `Name: ${this.userProfile?.name || 'Unknown'}`;
+                if (this.userProfile?.bloodGroup) userInfo += ` | Blood: ${this.userProfile.bloodGroup}`;
+                
+                return `🚨 EMERGENCY SOS ALERT 🚨
+
+URGENT: ${this.userProfile?.name || 'User'} needs immediate help!
+
+📍 Location: ${location}
+🗺️ Maps: ${mapsUrl}
+🕐 Time: ${time}
+📅 Date: ${date}
+
+👤 ${userInfo}
+
+⚠️ THIS IS AN AUTOMATED SOS ALERT
+🚑 PLEASE SEND HELP IMMEDIATELY
+📞 Contact emergency services: 100
+
+Forward to authorities immediately.
+Silent SOS System.`;
+            }
+            
+            cancelEmergency() {
+                this.emergencyMode = false;
+                document.body.classList.remove('emergency-mode');
+                clearInterval(this.countdownInterval);
+                document.getElementById('sosOverlay').style.display = 'none';
+                this.clear();
+            }
+            
+            // Contacts Management
+            saveContact(name, phone) {
+                if (!name || !phone) {
+                    this.showToast('Please enter name and phone number', 'warning');
+                    return;
+                }
+                
+                const cleanPhone = phone.replace(/[^\d+]/g, '');
+                if (cleanPhone.length < 10) {
+                    this.showToast('Please enter valid phone number', 'warning');
+                    return;
+                }
+                
+                this.smsContacts.push({
+                    name: name,
+                    phone: cleanPhone,
+                    timestamp: new Date().toISOString()
+                });
+                
+                localStorage.setItem('sos_sms_contacts', JSON.stringify(this.smsContacts));
+                this.updateContactsList();
+                this.showToast('✅ Contact saved!', 'success');
+            }
+            
+            removeContact(index) {
+                this.smsContacts.splice(index, 1);
+                localStorage.setItem('sos_sms_contacts', JSON.stringify(this.smsContacts));
+                this.updateContactsList();
+                this.showToast('Contact removed', 'success');
+            }
+            
+            updateContactsList() {
+                const container = document.getElementById('contactsList');
+                container.innerHTML = '';
+                
+                if (this.smsContacts.length === 0) {
+                    container.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-secondary);">No SMS contacts added yet</div>';
+                    return;
+                }
+                
+                this.smsContacts.forEach((contact, index) => {
+                    const contactElement = document.createElement('div');
+                    contactElement.className = 'contact-item';
+                    contactElement.innerHTML = `
+                        <div class="contact-info">
+                            <div class="contact-name">${contact.name}</div>
+                            <div class="contact-phone">${contact.phone}</div>
+                        </div>
+                        <div class="contact-actions">
+                            <button class="icon-button" onclick="app.testSMSContact(${index})" title="Test SMS">📱</button>
+                            <button class="icon-button" onclick="app.removeContact(${index})" title="Remove">✕</button>
+                        </div>
+                    `;
+                    container.appendChild(contactElement);
+                });
+                
+                this.updateSystemStatus();
+            }
+            
+            async testSMSContact(index) {
+                const contact = this.smsContacts[index];
+                if (!contact || !this.twilioConfigured) {
+                    this.showToast('Twilio not configured or contact missing', 'warning');
+                    return;
+                }
+                
+                const testMessage = `🚨 TEST ALERT 🚨\n\nThis is a TEST of the Silent SOS System.\n\nContact: ${contact.name}\nTime: ${new Date().toLocaleTimeString()}\nDate: ${new Date().toDateString()}\n\n✅ System is working properly.\n✅ You will receive similar alerts during emergencies.\n✅ No action needed.\n\nThis is only a test.`;
+                
+                try {
+                    const sent = await this.sendSingleSMS(contact.phone, testMessage);
+                    if (sent) {
+                        this.showToast(`✅ Test SMS sent to ${contact.name}`, 'success');
+                    } else {
+                        this.showToast('❌ SMS failed', 'error');
+                    }
+                } catch (error) {
+                    this.showToast('❌ SMS error', 'error');
+                }
+            }
+            
+            // Twilio Configuration
+            saveTwilioConfig(sid, token, phone) {
+                if (!sid || !token || !phone) {
+                    this.showToast('Please enter all Twilio credentials', 'warning');
+                    return;
+                }
+                
+                this.twilioSid = sid;
+                this.twilioToken = token;
+                this.twilioPhone = phone;
+                this.twilioConfigured = true;
+                
+                localStorage.setItem('twilio_sid', sid);
+                localStorage.setItem('twilio_token', token);
+                localStorage.setItem('twilio_phone', phone);
+                
+                this.showToast('✅ Twilio configured! SMS will work.', 'success');
+                this.updateSystemStatus();
+            }
+            
+            testTwilioConnection() {
+                if (!this.twilioConfigured) {
+                    this.showToast('Twilio not configured', 'warning');
+                    return;
+                }
+                
+                // Test with a simple SMS to verify
+                const testMessage = "✅ Silent SOS System Test: Twilio SMS is working properly!";
+                const testPhone = this.userProfile?.phone || this.twilioPhone;
+                
+                if (!testPhone) {
+                    this.showToast('No phone number to test with', 'warning');
+                    return;
+                }
+                
+                this.sendSingleSMS(testPhone, testMessage).then(success => {
+                    if (success) {
+                        this.showToast('✅ Twilio SMS test sent!', 'success');
+                    } else {
+                        this.showToast('❌ Twilio SMS failed', 'error');
+                    }
+                });
+            }
+            
+            // Telegram Connection Test
+            async testTelegramConnection() {
+                try {
+                    const response = await fetch(`https://api.telegram.org/bot${this.TELEGRAM_BOT_TOKEN}/getMe`);
+                    const result = await response.json();
+                    
+                    if (result.ok) {
+                        this.telegramConnected = true;
+                        document.getElementById('telegramStatus').textContent = 'Connected';
+                        document.getElementById('telegramStatus').style.color = 'var(--success)';
+                        this.showToast('✅ Telegram connection successful!', 'success');
+                    } else {
+                        throw new Error('Bot not found');
+                    }
+                } catch (error) {
+                    this.telegramConnected = false;
+                    document.getElementById('telegramStatus').textContent = 'Disconnected';
+                    document.getElementById('telegramStatus').style.color = 'var(--warning)';
+                    this.showToast('❌ Telegram connection failed', 'error');
+                }
+            }
+            
+            updateSystemStatus() {
+                // Update Telegram status
+                document.getElementById('telegramStatus').textContent = this.telegramConnected ? 'Connected' : 'Disconnected';
+                document.getElementById('telegramStatus').style.color = this.telegramConnected ? 'var(--success)' : 'var(--warning)';
+                
+                // Update Twilio status
+                document.getElementById('twilioStatus').textContent = this.twilioConfigured ? 'Configured' : 'Not Configured';
+                document.getElementById('twilioStatus').style.color = this.twilioConfigured ? 'var(--success)' : 'var(--warning)';
+                
+                // Update contacts count
+                document.getElementById('totalContacts').textContent = this.smsContacts.length;
+                document.getElementById('contactsStatus').textContent = `${this.smsContacts.length} Ready`;
+                
+                // Update location status
+                if (navigator.geolocation) {
+                    document.getElementById('systemLocation').textContent = 'Available';
+                    document.getElementById('systemLocation').style.color = 'var(--success)';
+                } else {
+                    document.getElementById('systemLocation').textContent = 'Unavailable';
+                    document.getElementById('systemLocation').style.color = 'var(--warning)';
+                }
+            }
+            
+            // UI Helpers
+            updateTime() {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                if (document.getElementById('currentTime')) {
+                    document.getElementById('currentTime').textContent = timeString;
+                }
+            }
+            
+            showToast(message, type = 'info', duration = 3000) {
+                const toast = document.getElementById('toast');
+                toast.textContent = message;
+                toast.className = `toast ${type}`;
+                
+                // Show toast
+                setTimeout(() => toast.classList.add('show'), 10);
+                
+                // Hide after duration
+                setTimeout(() => toast.classList.remove('show'), duration);
+            }
+            
+            // Event Listeners
+            setupEventListeners() {
+                // Login form
+                document.getElementById('loginForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    
+                    const profile = {
+                        name: document.getElementById('userName').value.trim(),
+                        phone: document.getElementById('userPhone').value.trim(),
+                        bloodGroup: document.getElementById('userBloodGroup').value,
+                        medical: document.getElementById('userMedical').value.trim(),
+                        allergies: document.getElementById('userAllergies').value.trim(),
+                        loginTime: new Date().toISOString()
+                    };
+                    
+                    if (!profile.name || !profile.phone) {
+                        this.showToast('Please enter name and phone number', 'warning');
+                        return;
+                    }
+                    
+                    this.loginUser(profile);
+                });
+                
+                // Logout button
+                document.getElementById('logoutBtn').addEventListener('click', () => {
+                    this.logoutUser();
+                });
+                
+                // Calculator buttons
+                document.querySelectorAll('.calc-button.number').forEach(button => {
+                    button.addEventListener('click', () => {
+                        this.appendNumber(button.dataset.number);
+                    });
+                });
+                
+                document.querySelectorAll('.calc-button[data-action]').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const action = button.dataset.action;
+                        
+                        switch (action) {
+                            case 'clear': this.clear(); break;
+                            case 'toggle': this.toggleSign(); break;
+                            case 'percent': this.percentage(); break;
+                            case 'decimal': this.appendDecimal(); break;
+                            case 'equals': this.calculate(); break;
+                            case 'add': this.setOperation('+'); break;
+                            case 'subtract': this.setOperation('-'); break;
+                            case 'multiply': this.setOperation('×'); break;
+                            case 'divide': this.setOperation('÷'); break;
+                        }
+                    });
+                });
+                
+                // Keyboard support
+                document.addEventListener('keydown', (e) => {
+                    if (e.key >= '0' && e.key <= '9') {
+                        this.appendNumber(e.key);
+                    } else if (e.key === '.') {
+                        this.appendDecimal();
+                    } else if (e.key === 'Enter' || e.key === '=') {
+                        this.calculate();
+                    } else if (e.key === 'Escape' || e.key === 'Delete') {
+                        this.clear();
+                    } else if (e.key === '+') {
+                        this.setOperation('+');
+                    } else if (e.key === '-') {
+                        this.setOperation('-');
+                    } else if (e.key === '*') {
+                        this.setOperation('×');
+                    } else if (e.key === '/') {
+                        e.preventDefault();
+                        this.setOperation('÷');
+                    }
+                });
+                
+                // Emergency button
+                document.getElementById('emergencyButton').addEventListener('click', () => {
+                    this.triggerEmergency();
+                });
+                
+                // SOS overlay buttons
+                document.getElementById('cancelSOSBtn').addEventListener('click', () => {
+                    this.cancelEmergency();
+                });
+                
+                document.getElementById('sendNowBtn').addEventListener('click', () => {
+                    clearInterval(this.countdownInterval);
+                    this.sendEmergencyAlert();
+                });
+                
+                // Settings buttons
+                document.getElementById('saveProfileBtn').addEventListener('click', () => {
+                    const name = document.getElementById('profileName').value.trim();
+                    const phone = document.getElementById('profilePhone').value.trim();
+                    
+                    if (name && phone) {
+                        this.userProfile.name = name;
+                        this.userProfile.phone = phone;
+                        localStorage.setItem('sos_user_profile', JSON.stringify(this.userProfile));
+                        this.showToast('✅ Profile updated!', 'success');
+                        this.showMainApp();
+                    } else {
+                        this.showToast('Please enter name and phone', 'warning');
+                    }
+                });
+                
+                document.getElementById('saveTelegramBtn').addEventListener('click', () => {
+                    this.showToast('Telegram settings saved!', 'success');
+                    this.testTelegramConnection();
+                });
+                
+                document.getElementById('saveTwilioBtn').addEventListener('click', () => {
+                    const sid = document.getElementById('twilioSid').value.trim();
+                    const token = document.getElementById('twilioToken').value.trim();
+                    const phone = document.getElementById('twilioPhone').value.trim();
+                    this.saveTwilioConfig(sid, token, phone);
+                });
+                
+                document.getElementById('saveContactBtn').addEventListener('click', () => {
+                    const name = document.getElementById('contactNameInput').value.trim();
+                    const phone = document.getElementById('contactPhoneInput').value.trim();
+                    this.saveContact(name, phone);
+                    
+                    // Clear inputs
+                    document.getElementById('contactNameInput').value = '';
+                    document.getElementById('contactPhoneInput').value = '';
+                });
+                
+                // Quick access buttons
+                document.getElementById('testTelegramBtn').addEventListener('click', () => {
+                    this.testTelegramConnection();
+                });
+                
+                document.getElementById('testTwilioBtn').addEventListener('click', () => {
+                    this.testTwilioConnection();
+                });
+                
+                // Navigation
+                document.getElementById('navCalculator').addEventListener('click', () => {
+                    this.setActiveNav('navCalculator');
+                    this.closeSettings();
+                });
+                
+                document.getElementById('navSettings').addEventListener('click', () => {
+                    this.setActiveNav('navSettings');
+                    this.openSettings();
+                });
+                
+                document.getElementById('navTest').addEventListener('click', () => {
+                    this.setActiveNav('navTest');
+                    this.triggerEmergency();
+                });
+                
+                document.getElementById('navAbout').addEventListener('click', () => {
+                    this.setActiveNav('navAbout');
+                    this.showToast('Silent SOS System v4.0\nDisguised emergency alert system', 'info');
+                });
+                
+                // Close settings
+                document.getElementById('closeSettingsBtn').addEventListener('click', () => {
+                    this.closeSettings();
+                });
+                
+                // Triple tap detection
+                let tapCount = 0;
+                let lastTapTime = 0;
+                
+                document.addEventListener('click', (e) => {
+                    if (e.target.closest('.sos-overlay') || e.target.closest('.settings-panel')) return;
+                    
+                    const tripleTapEnabled = document.getElementById('enableTripleTap').checked;
+                    if (!tripleTapEnabled) return;
+                    
+                    const now = Date.now();
+                    if (now - lastTapTime < 500) {
+                        tapCount++;
+                        if (tapCount === 3) {
+                            this.triggerEmergency();
+                            tapCount = 0;
+                        }
+                    } else {
+                        tapCount = 1;
+                    }
+                    lastTapTime = now;
+                });
+                
+                // Shake detection
+                if (window.DeviceMotionEvent) {
+                    let lastShake = 0;
+                    
+                    window.addEventListener('devicemotion', (e) => {
+                        const shakeEnabled = document.getElementById('enableShake').checked;
+                        if (!shakeEnabled) return;
+                        
+                        const acceleration = e.accelerationIncludingGravity;
+                        const now = Date.now();
+                        
+                        if (now - lastShake > 2000) {
+                            const force = Math.abs(acceleration.x) + Math.abs(acceleration.y) + Math.abs(acceleration.z);
+                            if (force > 30) {
+                                this.triggerEmergency();
+                                lastShake = now;
+                            }
+                        }
+                    });
+                }
+            }
+            
+            setActiveNav(navId) {
+                document.querySelectorAll('.nav-button').forEach(nav => {
+                    nav.classList.remove('active');
+                });
+                document.getElementById(navId).classList.add('active');
+            }
+            
+            openSettings() {
+                document.getElementById('settingsPanel').classList.add('active');
+            }
+            
+            closeSettings() {
+                document.getElementById('settingsPanel').classList.remove('active');
+                this.setActiveNav('navCalculator');
+            }
+        }
+        
+        // Initialize app
+        const app = new CalculatorSOS();
+        
+        // Make app globally available for button onclick events
+        window.app = app;
+        
+        // PWA Install Prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Show install button after a delay
+            setTimeout(() => {
+                if (deferredPrompt) {
+                    app.showToast('📱 Install as app for better experience', 'info');
+                }
+            }, 5000);
+        });
+    </script>
+</body>
+</html>
